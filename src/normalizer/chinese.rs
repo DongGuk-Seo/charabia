@@ -1,48 +1,25 @@
 use std::borrow::Cow;
 
-use pinyin::ToPinyin;
+use character_converter::traditional_to_simplified;
 
 use super::{Normalizer, NormalizerOption};
 use crate::detection::{Language, Script};
 use crate::Token;
 
-/// Normalize Chinese characters by converting them into Pinyin characters.
+/// Normalize Chinese characters by converting them into Simplified Chinese characters.
 ///
-/// This Normalizer uses [`pinyin`] internally to normalize the provided token.
+/// This Normalizer uses [`character_converter`] internally to normalize the provided token.
 pub struct ChineseNormalizer;
 
 impl Normalizer for ChineseNormalizer {
     fn normalize<'o>(
         &self,
         mut token: Token<'o>,
-        options: NormalizerOption,
+        _options: NormalizerOption,
     ) -> Box<dyn Iterator<Item = Token<'o>> + 'o> {
-        let mut lemma = String::new();
-        let mut char_map = options.create_char_map.then(Vec::new);
-
-        for c in token.lemma().chars() {
-            match c.to_pinyin() {
-                Some(converted) => {
-                    let with_tone = converted.with_tone();
-
-                    char_map
-                        .as_mut()
-                        .map(|char_map| char_map.push((c.len_utf8() as u8, with_tone.len() as u8)));
-
-                    lemma.push_str(with_tone);
-                }
-                None => {
-                    char_map
-                        .as_mut()
-                        .map(|char_map| char_map.push((c.len_utf8() as u8, c.len_utf8() as u8)));
-
-                    lemma.push(c);
-                }
-            }
+        if let Cow::Owned(s) = traditional_to_simplified(token.lemma()) {
+            token.lemma = Cow::Owned(s);
         }
-
-        token.lemma = Cow::Owned(lemma);
-        token.char_map = char_map;
 
         Box::new(Some(token).into_iter())
     }
@@ -85,20 +62,18 @@ mod test {
         vec![
             Token {
                 // lowercased
-                lemma: Owned("zūnyán".to_string()),
+                lemma: Owned("尊严".to_string()),
                 char_end: 2,
                 byte_end: 6,
-                char_map: Some(vec![(3, 4), (3, 4)]),
                 script: Script::Cj,
                 language: Some(Language::Cmn),
                 ..Default::default()
             },
             Token {
                 // lowercased
-                lemma: Owned("shēngérzìyóu".to_string()),
+                lemma: Owned("生而自由".to_string()),
                 char_end: 4,
                 byte_end: 12,
-                char_map: Some(vec![(3, 6), (3, 3), (3, 3), (3, 4)]),
                 script: Script::Cj,
                 language: Some(Language::Cmn),
                 ..Default::default()
@@ -110,19 +85,17 @@ mod test {
     fn normalized_tokens() -> Vec<Token<'static>> {
         vec![
             Token {
-                lemma: Owned("zūnyán".to_string()),
+                lemma: Owned("尊严".to_string()),
                 char_end: 2,
                 byte_end: 6,
-                char_map: Some(vec![(3, 4), (3, 4)]),
                 script: Script::Cj,
                 language: Some(Language::Cmn),
                 ..Default::default()
             },
             Token {
-                lemma: Owned("shēngérzìyóu".to_string()),
+                lemma: Owned("生而自由".to_string()),
                 char_end: 4,
                 byte_end: 12,
-                char_map: Some(vec![(3, 6), (3, 3), (3, 3), (3, 4)]),
                 script: Script::Cj,
                 language: Some(Language::Cmn),
                 ..Default::default()

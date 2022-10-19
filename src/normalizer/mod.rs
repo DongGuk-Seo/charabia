@@ -3,22 +3,20 @@ use once_cell::sync::Lazy;
 #[cfg(feature = "chinese")]
 pub use self::chinese::ChineseNormalizer;
 pub use self::control_char::ControlCharNormalizer;
-#[cfg(feature = "japanese-transliteration")]
-pub use self::japanese::JapaneseNormalizer;
+#[cfg(feature = "hebrew")]
+pub use self::hebrew::HebrewNormalizer;
 pub use self::latin::LatinNormalizer;
 pub use self::lowercase::LowercaseNormalizer;
 use crate::detection::{Language, Script};
-use crate::normalizer::nonspacing_mark::NonspacingMarkNormalizer;
 use crate::Token;
 
 #[cfg(feature = "chinese")]
 mod chinese;
 mod control_char;
-#[cfg(feature = "japanese-transliteration")]
-mod japanese;
+#[cfg(feature = "hebrew")]
+mod hebrew;
 mod latin;
 mod lowercase;
-mod nonspacing_mark;
 
 /// List of [`Normalizer`]s used by [`Normalize::normalize`].
 pub static NORMALIZERS: Lazy<Vec<Box<dyn Normalizer>>> = Lazy::new(|| {
@@ -26,11 +24,10 @@ pub static NORMALIZERS: Lazy<Vec<Box<dyn Normalizer>>> = Lazy::new(|| {
         Box::new(LowercaseNormalizer),
         #[cfg(feature = "chinese")]
         Box::new(ChineseNormalizer),
-        #[cfg(feature = "japanese-transliteration")]
-        Box::new(JapaneseNormalizer),
+        #[cfg(feature = "hebrew")]
+        Box::new(HebrewNormalizer),
         Box::new(LatinNormalizer),
         Box::new(ControlCharNormalizer),
-        Box::new(NonspacingMarkNormalizer),
     ]
 });
 

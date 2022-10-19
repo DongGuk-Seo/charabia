@@ -1,8 +1,7 @@
+use crate::segmenter::Segmenter;
 use lindera::mode::{Mode, Penalty};
 use lindera::tokenizer::{Tokenizer, TokenizerConfig};
 use once_cell::sync::Lazy;
-
-use crate::segmenter::Segmenter;
 
 /// Japanese specialized [`Segmenter`].
 ///
@@ -17,8 +16,8 @@ static LINDERA: Lazy<Tokenizer> = Lazy::new(|| {
 
 impl Segmenter for JapaneseSegmenter {
     fn segment_str<'o>(&self, to_segment: &'o str) -> Box<dyn Iterator<Item = &'o str> + 'o> {
-        let segment_iterator = LINDERA.tokenize(to_segment).unwrap();
-        Box::new(segment_iterator.into_iter().map(|token| token.text))
+        let segment_iterator = LINDERA.tokenize_str(to_segment).unwrap();
+        Box::new(segment_iterator.into_iter())
     }
 }
 
@@ -44,22 +43,7 @@ mod test {
         "うち",
     ];
 
-    const TOKENIZED: &[&str] = &[
-        "関西",
-        "国際",
-        "空港",
-        "限定",
-        // Use "とうとばっぐ" instead when feature "japanese-transliteration" is enabled or become default
-        "トートバッグ",
-        " ",
-        "すもも",
-        "も",
-        "もも",
-        "も",
-        "もも",
-        "の",
-        "うち",
-    ];
+    const TOKENIZED: &[&str] = SEGMENTED;
 
     // Macro that run several tests on the Segmenter.
     test_segmenter!(JapaneseSegmenter, TEXT, SEGMENTED, TOKENIZED, Script::Cj, Language::Jpn);
