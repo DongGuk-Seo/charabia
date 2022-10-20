@@ -6,7 +6,7 @@ authors = ["Many <many@meilisearch.com>"]
 edition = "2021"
 description = "A simple library to detect the language, tokenize the text and normalize the tokens"
 documentation = "https://docs.rs/charabia"
-repository = "https://github.com/meilisearch/charabia"
+repository = "https://github.com/DongGuk-Seo/charabia"
 keywords = ["segmenter", "tokenizer", "normalize", "language"]
 categories = ["text-processing"]
 exclude = ["/dictionaries/txt/"]
@@ -21,7 +21,7 @@ once_cell = "1.5.2"
 slice-group-by = "0.3.0"
 unicode-segmentation = "1.6.0"
 whatlang = "0.13.0"
-lindera = { git = "https://github.com/DongGuk-Seo/lindera", features = ["ko-dic"], optional = true }
+lindera = { git = "https://github.com/DongGuk-Seo/lindera", optional = true }
 
 
 [features]
@@ -34,13 +34,13 @@ chinese = ["dep:character_converter", "dep:jieba-rs"]
 hebrew = []
 
 # allow japanese specialized tokenization
-japanese = ["dep:lindera"]
+japanese = ["lindera/ipadic"]
 
 # allow thai specialized tokenization
 thai = []
 
 # allow korean specialized tokenization
-korean = ["dep:lindera"]
+korean = ["lindera/ko-dic"]
 
 
 [dev-dependencies]
