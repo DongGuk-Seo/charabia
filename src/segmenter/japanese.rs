@@ -16,7 +16,7 @@ static LINDERA: Lazy<Tokenizer> = Lazy::new(|| {
 
 impl Segmenter for JapaneseSegmenter {
     fn segment_str<'o>(&self, to_segment: &'o str) -> Box<dyn Iterator<Item = &'o str> + 'o> {
-        let segment_iterator = LINDERA.tokenize_str(to_segment).unwrap();
+        let segment_iterator = LINDERA.tokenize(to_segment).unwrap();
         Box::new(segment_iterator.into_iter())
     }
 }
